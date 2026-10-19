@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>NUM V3 MATRIX - 1 PERIOD BACK</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'Orbitron', sans-serif;
+            text-rendering: optimizeLegibility;
+        }
+
+        :root {
+            --fire-red: #ff1e27;
+            --fire-orange: #ff6600;
+            --fire-gold: #ffd000;
+            --cyan-start: #00d2ff;
+            --cyan-end: #0077fe;
+        }
+
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ── BACKGROUND IFRAME & OVERLAY ── */
+        #bg-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            z-index: 0;
+        }
+        #iframe-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: none;
+            background: transparent;
+            pointer-events: none;
+        }
+
+        /* ── FLOATING INJECTOR CONTAINER ── */
+        #injector-container {
+            position: fixed;
+            z-index: 9999;
+            touch-action: none;
+            top: 20px;
+            left: 20px;
+        }
+
+        /* ── MINI FLOATING BUTTON ── */
+        #miniBtn {
+            width: 72px;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background: transparent;
+            position: relative;
+            z-index: 10000;
+        }
+        .mini-core-disc {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 25%, #2a0305 0%, #0c0001 70%);
+            border: 2px solid var(--fire-red);
+            box-shadow: 0 0 15px rgba(255, 30, 39, 0.85), inset 0 0 8px rgba(255, 30, 39, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            z-index: 4;
+            flex-shrink: 0;
+        }
+        .mini-core-disc img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+        .mini-ring-1 {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 1.8px dashed var(--fire-gold);
+            animation: ringSpin 5s linear infinite;
+            filter: drop-shadow(0 0 5px var(--fire-gold));
+            pointer-events: none;
+            z-index: 2;
+        }
+        .mini-ring-2 {
+            position: absolute;
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top: 2.2px solid var(--fire-red);
+            border-bottom: 2.2px solid var(--fire-gold);
+            animation: ringSpinRev 3.5s linear infinite;
+            filter: drop-shadow(0 0 7px var(--fire-red));
+            pointer-events: none;
+            z-index: 3;
+        }
+        .mini-lines-cross {
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            pointer-events: none;
+            z-index: 1;
+            border-radius: 50%;
+            border: 1.2px dotted rgba(255, 208, 0, 0.45);
+            animation: ringSpin 14s linear infinite;
+        }
+        @keyframes ringSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes ringSpinRev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+
+        /* ── INJECTOR PANEL ── */
+        #panelWrapper {
+            width: 254px;
+            min-width: 254px;
+            max-width: 254px;
+            padding: 2.5px;
+            border-radius: 22px;
+            display: none;
+            position: relative;
+            z-index: 10001;
+            overflow: visible;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.95);
+        }
+
+        .fire-laser-border {
+            position: absolute;
+            inset: -2px;
+            border-radius: 24px;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .fire-laser-border::before {
+            content: '';
+            position: absolute;
+            width: 280%;
+            height: 280%;
+            top: -90%;
+            left: -90%;
+            background: conic-gradient(
+                transparent 0deg,
+                transparent 220deg,
+                rgba(255, 30, 39, 0.2) 240deg,
+                var(--fire-orange) 290deg,
+                var(--fire-red) 330deg,
+                var(--fire-gold) 350deg,
+                #ffffff 360deg
+            );
+            animation: slowFireSpin 5.5s linear infinite;
+        }
+        @keyframes slowFireSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .panel-inner {
+            position: relative;
+            width: 100%;
+            border-radius: 20px;
+            padding: 9px;
+            background: radial-gradient(circle at 50% 0%, #290306 0%, #120103 45%, #050001 100%);
+            box-shadow: inset 0 0 15px rgba(255, 30, 39, 0.3);
+            z-index: 2;
+        }
+
+        /* ── HEADER ── */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2px 6px;
+        }
+        .title {
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+        .active-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            background: rgba(35, 2, 4, 0.95);
+            border: 1px solid rgba(255, 40, 50, 0.7);
+            color: #ff5252;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: 0.6px;
+        }
+        .dot-wrapper {
+            position: relative;
+            width: 7px;
+            height: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dot-core {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 0 4px #ff1e27, 0 0 8px #ff1e27;
+            position: relative;
+            z-index: 2;
+        }
+        .dot-ping {
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            border: 1px solid #ff1e27;
+            animation: radarPulse 1.4s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+            z-index: 1;
+        }
+        @keyframes radarPulse {
+            0% { transform: scale(0.6); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        /* ── INFO BAR ── */
+        .info-box-wrapper {
+            padding: 5px 7px;
+            margin-bottom: 6px;
+            border-radius: 8px;
+            background: #170204;
+            border: 1px solid rgba(255, 40, 50, 0.35);
+        }
+        .info-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .info-left div {
+            font-size: 7.5px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+        .hash-val {
+            color: #ffb5b5 !important;
+            margin-top: 1px;
+            font-size: 7.5px !important;
+        }
+        .info-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 7.5px;
+            font-weight: 800;
+            color: var(--fire-gold);
+        }
+        .wifi-icon {
+            width: 10px;
+            height: 10px;
+            display: block;
+            filter: drop-shadow(0 0 2px var(--fire-gold));
+        }
+
+        /* ── MAIN CONTENT BOX ── */
+        .main-content-box {
+            position: relative;
+            height: 142px;
+            margin-bottom: 6px;
+            border: 1.5px solid rgba(255, 40, 50, 0.85);
+            border-radius: 14px;
+            background: radial-gradient(circle at center, #1b0204 0%, #0a0102 60%, #020001 100%);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #spaceInside {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+            opacity: 1;
+            background: radial-gradient(ellipse at center, rgba(120, 10, 25, 0.25) 0%, transparent 75%);
+        }
+        .inside-star {
+            position: absolute;
+            width: var(--s);
+            height: var(--s);
+            left: var(--x);
+            top: var(--y);
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 5px rgba(255, 120, 120, 0.9);
+            opacity: var(--o);
+            animation: insideSubtleFloat 3.5s infinite alternate ease-in-out;
+        }
+        @keyframes insideSubtleFloat {
+            0% { transform: translateY(0px) scale(0.8); opacity: 0.3; }
+            50% { transform: translateY(-2px) scale(1.1); opacity: 0.9; }
+            100% { transform: translateY(2px) scale(0.9); opacity: 0.4; }
+        }
+
+        .corner-tl {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 8px;
+            height: 8px;
+            border-top: 2px solid #ff3333;
+            border-left: 2px solid #ff3333;
+            z-index: 75;
+        }
+        .corner-br {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            border-bottom: 2px solid #ff3333;
+            border-right: 2px solid #ff3333;
+            z-index: 75;
+        }
+
+        .static-hud-strip {
+            width: 100%;
+            min-height: 25px;
+            background: rgba(255, 30, 40, 0.12);
+            border-top: 1px solid rgba(255, 208, 0, 0.4);
+            border-bottom: 1px solid rgba(255, 208, 0, 0.4);
+            padding: 4px 6px;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .static-hud-text {
+            font-size: 8px;
+            font-weight: 800;
+            color: var(--fire-gold);
+            letter-spacing: 0.8px;
+            white-space: nowrap;
+        }
+
+        .cyber-alert-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 6px 8px;
+            text-align: center;
+            z-index: 10;
+        }
+        .cyber-vector-icon {
+            width: 26px;
+            height: 26px;
+            margin-bottom: 3px;
+        }
+        .cyber-alert-title {
+            font-size: 11px;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 1.2px;
+        }
+        .cyber-alert-sub {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 9px;
+            font-weight: 700;
+            color: #ffbebe;
+            margin-top: 2px;
+        }
+
+        /* ── REEL SPINNER ── */
+        .picker-stage {
+            position: absolute;
+            inset: 0;
+            z-index: 25;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .picker-label {
+            position: absolute;
+            top: 7px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 2px 8px;
+            border: 1px solid rgba(255, 208, 0, 0.4);
+            background: #120103;
+            color: var(--fire-gold);
+            font-size: 7px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            white-space: nowrap;
+            border-radius: 4px;
+            z-index: 50;
+        }
+        .reel-window {
+            position: absolute;
+            left: 8px;
+            right: 8px;
+            top: 35px;
+            bottom: 24px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 1px solid rgba(255, 40, 40, 0.35);
+            z-index: 20;
+        }
+        .reel-track {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transform: translate3d(var(--track-x, 0px), -50%, 0);
+            will-change: transform;
+            padding-left: 80px;
+            padding-right: 80px;
+        }
+        .reel-number {
+            flex: 0 0 42px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #200204;
+            border: 1px solid rgba(255, 60, 60, 0.4);
+            transform: scale(0.85);
+            opacity: 0.5;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .reel-number img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+        }
+        .reel-number.active {
+            transform: scale(1.12);
+            opacity: 1;
+            border-color: #fff;
+            box-shadow: 0 0 8px var(--fire-red);
+            z-index: 10;
+        }
+        .center-picker {
+            position: absolute;
+            top: 32px;
+            bottom: 21px;
+            left: 50%;
+            width: 1.5px;
+            transform: translateX(-50%);
+            background: var(--fire-gold);
+            box-shadow: 0 0 5px var(--fire-gold);
+            z-index: 60;
+            pointer-events: none;
+        }
+        .picker-status {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--fire-gold);
+            font-size: 6.5px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            z-index: 55;
+        }
+
+        /* ── RESULT HUD ── */
+        .result-hud-duo {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 8px 12px;
+            z-index: 40;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .capsule-badge {
+            flex: 1;
+            height: 54px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .capsule-badge.is-small {
+            background: linear-gradient(180deg, #1ce3ff 0%, #0099ff 55%, #0066cc 100%);
+            border: 2.5px solid #d4f8ff;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 6px rgba(0, 50, 120, 0.6);
+        }
+        .capsule-badge.is-small .capsule-text {
+            color: #03274d;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .capsule-badge.is-big {
+            background: linear-gradient(180deg, #ffd700 0%, #ff8c00 55%, #e62e00 100%);
+            border: 2.5px solid #fff2b3;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.7), inset 0 2px 4px rgba(255, 255, 255, 0.8), inset 0 -3px 6px rgba(120, 20, 0, 0.6);
+        }
+        .capsule-badge.is-big .capsule-text {
+            color: #4a0d00;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 -1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .capsule-text {
+            font-size: 19px;
+            font-weight: 900;
+            letter-spacing: 2.5px;
+            line-height: 1;
+        }
+
+        .num-circle-wrap {
+            width: 72px;
+            height: 72px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .num-circle-ring-outer {
+            position: absolute;
+            inset: 0px;
+            border-radius: 50%;
+            border: 2px dashed var(--fire-gold);
+            animation: ringSpin 6s linear infinite;
+            filter: drop-shadow(0 0 4px var(--fire-gold));
+        }
+        .num-circle-ring-inner {
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top: 2px solid var(--fire-red);
+            border-bottom: 2px solid #ffffff;
+            animation: ringSpinRev 3s linear infinite;
+            filter: drop-shadow(0 0 6px var(--fire-red));
+        }
+        .num-circle-core {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #2a0305 0%, #0d0102 85%);
+            box-shadow: 0 0 12px rgba(255, 30, 39, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            border: 1px solid rgba(255, 208, 0, 0.3);
+        }
+        .num-circle-core img {
+            width: 38px;
+            height: 38px;
+            object-fit: contain;
+            display: block;
+        }
+
+        @keyframes sureshotVibrate {
+            0%, 75%, 100% { transform: translateX(-50%) rotate(0deg); }
+            78% { transform: translateX(calc(-50% - 1.5px)) rotate(-0.5deg); }
+            81% { transform: translateX(calc(-50% + 1.5px)) rotate(0.5deg); }
+            84% { transform: translateX(calc(-50% - 1px)) rotate(-0.3deg); }
+            87% { transform: translateX(calc(-50% + 1px)) rotate(0.3deg); }
+            90% { transform: translateX(calc(-50% - 0.5px)) rotate(0deg); }
+            93% { transform: translateX(-50%) rotate(0deg); }
+        }
+
+        .badge-sureshot {
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 75;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2.5px 8px;
+            border-radius: 9px;
+            background: #170204;
+            border: 1px solid rgba(255, 50, 60, 0.75);
+            color: #fff;
+            font-size: 7px;
+            font-weight: 900;
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.4);
+            animation: sureshotVibrate 3.8s ease-in-out infinite;
+            will-change: transform;
+        }
+        .dot-yellow {
+            width: 4.5px;
+            height: 4.5px;
+            border-radius: 50%;
+            background: var(--fire-gold);
+            box-shadow: 0 0 4px var(--fire-gold);
+        }
+        .red-separator {
+            width: 100%;
+            height: 1.5px;
+            margin: 5px 0 7px;
+            background: linear-gradient(90deg, transparent, #ff3030, transparent);
+        }
+
+        /* ── BUTTONS ── */
+        .buttons-container {
+            display: flex;
+            gap: 7px;
+            width: 100%;
+        }
+        .btn {
+            flex: 1;
+            padding: 7px 0;
+            border-radius: 16px;
+            border: 1px solid;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 0.8px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-execute {
+            background: linear-gradient(180deg, #ff4d4d, #dc0909 55%, #720000);
+            color: #fff;
+            border-color: #ff9e9e;
+            box-shadow: 0 2px 6px rgba(255, 0, 0, 0.4);
+        }
+        .btn-processing {
+            background: #252525;
+            color: #ccc;
+            border-color: #777;
+        }
+        .btn-hide {
+            background: #222;
+            color: #fff;
+            border-color: #555;
+        }
+
+        #periodDisplay {
+            display: inline-block;
+            min-width: 42px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND IFRAME -->
+    <iframe id="bg-iframe" src="https://raxi-win.teacherslex.site"></iframe>
+
+    <!-- OVERLAY (USED DURING DRAG ONLY) -->
+    <div id="iframe-overlay"></div>
+
+    <!-- FLOATING INJECTOR CONTAINER -->
+    <div id="injector-container">
+        
+        <!-- ENLARGED MINI BUTTON -->
+        <div id="miniBtn">
+            <div class="mini-lines-cross"></div>
+            <div class="mini-ring-1"></div>
+            <div class="mini-ring-2"></div>
+            <div class="mini-core-disc">
+                <img src="https://i.ibb.co/ymJW9N66/cropped-circle-image-4.png" alt="Mini Logo">
+            </div>
+        </div>
+
+        <!-- INJECTOR PANEL -->
+        <div id="panelWrapper">
+            <div class="fire-laser-border"></div>
+
+            <div class="panel-inner">
+                <div class="header">
+                    <div class="title">NUMBER TOOL</div>
+                    <div class="active-status">
+                        <div class="dot-wrapper">
+                            <div class="dot-ping"></div>
+                            <div class="dot-core"></div>
+                        </div>
+                        ACTIVE
+                    </div>
+                </div>
+
+                <div class="info-box-wrapper">
+                    <div class="info-box">
+                        <div class="info-left">
+                            <div>VIP NUMBER TOOL</div>
+                            <div class="hash-val">
+                                PERIOD: <span id="periodDisplay">---</span>
+                            </div>
+                        </div>
+                        <div class="info-right">
+                            <span id="pingMs">24ms</span>
+                            <svg class="wifi-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                                <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                                <line x1="12" y1="20" x2="12.01" y2="20"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-content-box" id="mainBox">
+                    <div id="spaceInside"></div>
+                    <div class="corner-tl"></div>
+                    <div class="corner-br"></div>
+
+                    <div id="dynamicArea" style="width:100%; height:100%; position:relative;"></div>
+
+                    <div class="badge-sureshot">
+                        <span class="dot-yellow"></span>
+                        ✓ SURESHOT
+                    </div>
+                </div>
+
+                <div class="red-separator"></div>
+
+                <div class="buttons-container" id="btnArea"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        var state = 'ready';
+        var isScanning = false;
+        var currentResultSz = 'BIG';
+        var currentResultNum = '7';
+        var currentPeriod = null;
+        var lastGeneratedPeriod = null;
+        var isOpen = false;
+
+        var pickerTimer = null;
+        var pickerStart = null;
+        var pickerRAF = null;
+
+        const numImages = {
+            '0': 'https://i.ibb.co/Kx7TMDmn/num-0.png',
+            '1': 'https://i.ibb.co/S7vVL7Wg/num-1.png',
+            '2': 'https://i.ibb.co/V0vv3Gf7/num-2.png',
+            '3': 'https://i.ibb.co/xS50GqJg/num-3.png',
+            '4': 'https://i.ibb.co/846CYKdt/num-4.png',
+            '5': 'https://i.ibb.co/vCkVLVHy/num-5.png',
+            '6': 'https://i.ibb.co/FqhLztRX/num-6.png',
+            '7': 'https://i.ibb.co/0pnn5pd9/num-7.png',
+            '8': 'https://i.ibb.co/prGj0ryM/num-8.png',
+            '9': 'https://i.ibb.co/TMT2Bq65/num-9.png'
+        };
+
+        /* =========================================================
+           1-PERIOD BACK LIVE CALCULATION
+        ========================================================= */
+        function getOnePeriodBack() {
+            var d = new Date();
+            var utc = new Date(d.toLocaleString('en-US', { timeZone: 'UTC' }));
+            utc.setMinutes(utc.getMinutes() + 330);
+            var total = utc.getUTCHours() * 60 + utc.getUTCMinutes();
+            var periodSuffix = String(10001 + total - 1);
+            return periodSuffix.slice(-5);
+        }
+
+        /* =========================================================
+           PERIOD CHECKER
+        ========================================================= */
+        setInterval(function() {
+            var pEl = document.getElementById('periodDisplay');
+            var backPeriod = getOnePeriodBack();
+
+            if (currentPeriod && currentPeriod !== backPeriod) {
+                currentPeriod = backPeriod;
+                if (state === 'result') {
+                    state = 'ready';
+                    if (isOpen) render();
+                }
+            }
+
+            if (pEl && !isScanning) {
+                pEl.innerText = currentPeriod || backPeriod;
+            }
+        }, 1000);
+
+        /* =========================================================
+           CLEAN DRAGGING & INSTANT 1-CLICK CONTROLLER
+        ========================================================= */
+        const container = document.getElementById('injector-container');
+        const miniBtn = document.getElementById('miniBtn');
+        const panelWrapper = document.getElementById('panelWrapper');
+        const overlay = document.getElementById('iframe-overlay');
+        
+        let isDragging = false;
+        let dragDistance = 0;
+        let startX = 0, startY = 0, initialX = 0, initialY = 0;
+
+        const savedPos = JSON.parse(localStorage.getItem('v3MatrixPos') || '{"x": 20, "y": 20}');
+        container.style.left = savedPos.x + 'px';
+        container.style.top = savedPos.y + 'px';
+
+        function handlePointerStart(e) {
+            if (e.target.closest('.btn')) return;
+            isDragging = true;
+            dragDistance = 0;
+            const touch = e.touches ? e.touches[0] : e;
+            startX = touch.clientX;
+            startY = touch.clientY;
+            initialX = container.offsetLeft;
+            initialY = container.offsetTop;
+            container.style.transition = 'none';
+        }
+
+        function handlePointerMove(e) {
+            if (!isDragging) return;
+            const touch = e.touches ? e.touches[0] : e;
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            dragDistance = Math.hypot(dx, dy);
+
+            if (dragDistance > 8) {
+                overlay.style.display = 'block';
+                overlay.style.pointerEvents = 'auto';
+
+                let newX = initialX + dx;
+                let newY = initialY + dy;
+                newX = Math.max(0, Math.min(window.innerWidth - container.offsetWidth, newX));
+                newY = Math.max(0, Math.min(window.innerHeight - container.offsetHeight, newY));
+                container.style.left = newX + 'px';
+                container.style.top = newY + 'px';
+            }
+        }
+
+        function handlePointerEnd() {
+            if (!isDragging) return;
+            isDragging = false;
+            container.style.transition = 'all 0.2s ease-out';
+            localStorage.setItem('v3MatrixPos', JSON.stringify({ x: container.offsetLeft, y: container.offsetTop }));
+            
+            overlay.style.display = 'none';
+            overlay.style.pointerEvents = 'none';
+        }
+
+        container.addEventListener('mousedown', handlePointerStart);
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerEnd);
+
+        container.addEventListener('touchstart', handlePointerStart, {passive: true});
+        window.addEventListener('touchmove', handlePointerMove, {passive: true});
+        window.addEventListener('touchend', handlePointerEnd);
+
+        miniBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (dragDistance > 8) return;
+            openPanel();
+        });
+
+        /* =========================================================
+           GALAXY STARS (ONLY INSIDE INJECTOR BOX)
+        ========================================================= */
+        function createInsideGalaxy() {
+            const area = document.getElementById('spaceInside');
+            if (!area) return;
+            area.innerHTML = '';
+            for (let i = 0; i < 28; i++) {
+                const star = document.createElement('span');
+                star.className = 'inside-star';
+                star.style.setProperty('--s', (Math.random() * 2.2 + 0.6) + 'px');
+                star.style.setProperty('--x', Math.random() * 100 + '%');
+                star.style.setProperty('--y', Math.random() * 100 + '%');
+                star.style.setProperty('--o', Math.random() * 0.7 + 0.25);
+                star.style.animationDelay = (Math.random() * 2.5) + 's';
+                area.appendChild(star);
+            }
+        }
+
+        /* =========================================================
+           OPEN / CLOSE
+        ========================================================= */
+        function openPanel() {
+            isOpen = true;
+            panelWrapper.style.display = 'block';
+            miniBtn.style.display = 'none';
+            render();
+        }
+
+        function closePanel() {
+            isOpen = false;
+            isScanning = false;
+            stopPicker();
+            panelWrapper.style.display = 'none';
+            miniBtn.style.display = 'flex';
+        }
+
+        /* =========================================================
+           FETCH EXACT 1-PERIOD BACK RESULT (LIST[0] = LAST DECLARED DRAW)
+        ========================================================= */
+        async function fetchOnePeriodBackResult() {
+            try {
+                const response = await fetch('https://draw.ar-lottery01.com/WinGo/WinGo_1M/GetHistoryIssuePage.json');
+                const data = await response.json();
+                const list = data?.data?.list || [];
+
+                // list[0] is strictly the latest finished (1 period back) result
+                if (list.length > 0) {
+                    const onePeriodBack = list[0];
+                    const num = parseInt(onePeriodBack.number);
+                    currentResultNum = String(num);
+                    currentResultSz = (num <= 4) ? 'SMALL' : 'BIG';
+                    currentPeriod = String(onePeriodBack.issueNumber).slice(-5);
+                } else {
+                    fallbackLocalCalculation();
+                }
+            } catch (err) {
+                fallbackLocalCalculation();
+            }
+        }
+
+        function fallbackLocalCalculation() {
+            currentPeriod = getOnePeriodBack();
+            const calcNum = String(Math.floor(Math.random() * 10));
+            currentResultNum = calcNum;
+            currentResultSz = (parseInt(calcNum, 10) <= 4) ? 'SMALL' : 'BIG';
+        }
+
+        async function actionClick() {
+            if (isScanning) return;
+            var backPeriod = getOnePeriodBack();
+
+            if (lastGeneratedPeriod === backPeriod && state === 'result') {
+                showFinalResult();
+                return;
+            }
+
+            currentPeriod = backPeriod;
+            lastGeneratedPeriod = currentPeriod;
+            document.getElementById('periodDisplay').innerText = currentPeriod;
+
+            await fetchOnePeriodBackResult();
+            document.getElementById('periodDisplay').innerText = currentPeriod;
+
+            startPicker();
+        }
+
+        /* =========================================================
+           REEL PICKER ENGINE (EXACT NUMBER LOCK)
+        ========================================================= */
+        function generatePickerHTML() {
+            return `
+                <div class="picker-stage">
+                    <div class="picker-label">VIP SURESHOT COMING </div>
+                    <div class="reel-window">
+                        <div id="reelTrack" class="reel-track"></div>
+                    </div>
+                    <div class="center-picker"></div>
+                    <div id="pickerStatus" class="picker-status">VIP NUMBER TOOL</div>
+                </div>
+            `;
+        }
+
+        function buildReel() {
+            const track = document.getElementById('reelTrack');
+            if (!track) return;
+            track.innerHTML = '';
+            const sequence = [];
+            for (let round = 0; round < 8; round++) {
+                for (let n = 0; n <= 9; n++) sequence.push(String(n));
+            }
+            sequence.forEach((num, index) => {
+                const card = document.createElement('div');
+                card.className = 'reel-number';
+                card.dataset.index = index;
+                card.dataset.num = num;
+                const img = document.createElement('img');
+                img.src = numImages[num];
+                img.alt = num;
+                img.onerror = function() {
+                    this.onerror = null;
+                    this.src = 'https://dummyimage.com/60x60/ff2020/ffffff.png&text=' + num;
+                };
+                card.appendChild(img);
+                track.appendChild(card);
+            });
+        }
+
+        function updateActiveCard() {
+            const track = document.getElementById('reelTrack');
+            if (!track) return;
+            const cards = track.querySelectorAll('.reel-number');
+            const win = track.parentElement;
+            if (!win) return;
+
+            const center = win.getBoundingClientRect().left + win.getBoundingClientRect().width / 2;
+            let nearest = null;
+            let nearestDistance = Infinity;
+
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardCenter = rect.left + rect.width / 2;
+                const distance = Math.abs(cardCenter - center);
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearest = card;
+                }
+                card.classList.remove('active');
+            });
+
+            if (nearest) nearest.classList.add('active');
+        }
+
+        function startPicker() {
+            if (isScanning) return;
+            isScanning = true;
+            state = 'scanning';
+            stopPicker();
+
+            const dynamic = document.getElementById('dynamicArea');
+            const btnArea = document.getElementById('btnArea');
+
+            dynamic.innerHTML = generatePickerHTML();
+            buildReel();
+            createInsideGalaxy();
+
+            btnArea.innerHTML = `
+                <button class="btn btn-processing" disabled>LOCKING BACK PERIOD...</button>
+                <button class="btn btn-hide" onclick="closePanel()">HIDE</button>
+            `;
+
+            const track = document.getElementById('reelTrack');
+            const status = document.getElementById('pickerStatus');
+            const cards = track.querySelectorAll('.reel-number');
+
+            const targetIndex = 40;
+            const targetCard = cards[targetIndex];
+            if (!targetCard) {
+                isScanning = false;
+                return;
+            }
+
+            const win = track.parentElement;
+            const windowRect = win.getBoundingClientRect();
+            const targetRect = targetCard.getBoundingClientRect();
+
+            let currentX = windowRect.width / 2 - (targetRect.left - windowRect.left + targetRect.width / 2);
+            track.style.setProperty('--track-x', currentX + 'px');
+            updateActiveCard();
+
+            // Find exact index of currentResultNum ahead in sequence
+            const finalNum = currentResultNum;
+            let finalIndex = targetIndex + 20;
+            while (cards[finalIndex] && cards[finalIndex].dataset.num !== finalNum) {
+                finalIndex++;
+            }
+            if (!cards[finalIndex]) finalIndex = targetIndex + 20;
+
+            const finalCardWidth = 42;
+            const gap = 8;
+            const step = finalCardWidth + gap;
+            // Exact center equation
+            const targetX = (windowRect.width / 2) - (80 + (finalIndex * step) + (finalCardWidth / 2));
+
+            const startX = currentX;
+            const distance = targetX - startX;
+            pickerStart = performance.now();
+            const duration = 3400;
+
+            function animate(now) {
+                if (!isScanning) return;
+                const elapsed = now - pickerStart;
+                let progress = Math.min(elapsed / duration, 1);
+
+                let eased;
+                if (progress < 0.35) {
+                    const p = progress / 0.35;
+                    eased = p * p * 0.65;
+                } else if (progress < 0.72) {
+                    const p = (progress - 0.35) / 0.37;
+                    eased = 0.2275 + p * 0.52;
+                } else {
+                    const p = (progress - 0.72) / 0.28;
+                    eased = 0.7475 + (1 - Math.pow(1 - p, 3)) * 0.2525;
+                }
+
+                const x = startX + distance * eased;
+                track.style.setProperty('--track-x', x + 'px');
+                updateActiveCard();
+
+                if (progress < 0.3) {
+                    status.innerText = 'READING PREVIOUS ISSUE...';
+                } else if (progress < 0.7) {
+                    status.innerText = 'CALCUTING RESULT...';
+                } else {
+                    status.innerText = 'PREVIOUS RESULT VERIFIED';
+                }
+
+                if (progress < 1) {
+                    pickerRAF = requestAnimationFrame(animate);
+                } else {
+                    track.style.setProperty('--track-x', targetX + 'px');
+                    updateActiveCard();
+                    status.innerText = 'LOCKED • BACK N: ' + finalNum;
+                    pickerTimer = setTimeout(showFinalResult, 350);
+                }
+            }
+
+            pickerRAF = requestAnimationFrame(animate);
+        }
+
+        function stopPicker() {
+            if (pickerRAF) { cancelAnimationFrame(pickerRAF); pickerRAF = null; }
+            if (pickerTimer) { clearTimeout(pickerTimer); pickerTimer = null; }
+        }
+
+        /* =========================================================
+           SHOW FINAL RESULT
+        ========================================================= */
+        function showFinalResult() {
+            stopPicker();
+            isScanning = false;
+            state = 'result';
+
+            const dynamic = document.getElementById('dynamicArea');
+            currentPeriod = currentPeriod || getOnePeriodBack();
+            document.getElementById('periodDisplay').innerText = currentPeriod;
+
+            var isBigClass = (currentResultSz === 'BIG') ? 'is-big' : 'is-small';
+
+            dynamic.innerHTML = `
+                <div class="result-hud-duo" id="resultHudDuo">
+                    <div class="capsule-badge ${isBigClass}">
+                        <div class="capsule-text">${currentResultSz}</div>
+                    </div>
+
+                    <div class="num-circle-wrap">
+                        <div class="num-circle-ring-outer"></div>
+                        <div class="num-circle-ring-inner"></div>
+                        <div class="num-circle-core">
+                            <img src="${numImages[currentResultNum]}" onerror="this.onerror=null; this.src='https://dummyimage.com/60x60/ff2020/ffffff.png&text=${currentResultNum}';" alt="${currentResultNum}">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('btnArea').innerHTML = `
+                <button class="btn btn-execute" onclick="actionClick()">EXECUTE</button>
+                <button class="btn btn-hide" onclick="closePanel()">HIDE</button>
+            `;
+        }
+
+        /* =========================================================
+           RENDER CONTROLLER
+        ========================================================= */
+        function render() {
+            const dynamic = document.getElementById('dynamicArea');
+            const btnArea = document.getElementById('btnArea');
+            if (!dynamic || !btnArea) return;
+
+            document.getElementById('periodDisplay').innerText = currentPeriod || getOnePeriodBack();
+
+            if (state === 'result') {
+                showFinalResult();
+                return;
+            }
+
+            dynamic.innerHTML = `
+                <div class="cyber-alert-box">
+                    <svg class="cyber-vector-icon" viewBox="0 0 24 24" fill="none" stroke="#ffd000" stroke-width="2">
+                        <polygon points="5 3 19 12 5 21 5 3"/>
+                    </svg>
+                    <div class="cyber-alert-title">SYSTEM READY</div>
+                    <div class="static-hud-strip">
+                        <span class="static-hud-text">1-PERIOD BACK PREDICTOR READY</span>
+                    </div>
+                    <div class="cyber-alert-sub">TAP EXECUTE TO SYNC BACK NUMBER</div>
+                </div>
+            `;
+            btnArea.innerHTML = `
+                <button class="btn btn-execute" onclick="actionClick()">EXECUTE</button>
+                <button class="btn btn-hide" onclick="closePanel()">HIDE</button>
+            `;
+        }
+
+        setInterval(function() {
+            var ping = document.getElementById('pingMs');
+            if (ping) {
+                ping.innerText = (Math.floor(Math.random() * 8) + 20) + 'ms';
+            }
+        }, 1200);
+
+        window.onload = function() {
+            createInsideGalaxy();
+            panelWrapper.style.display = 'none';
+            miniBtn.style.display = 'flex';
+        };
+    </script>
+</body>
+</html>
